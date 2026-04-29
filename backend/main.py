@@ -1,5 +1,7 @@
 import os
+from pathlib import Path
 from fastapi import FastAPI, Depends
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 import anthropic
@@ -7,12 +9,19 @@ from dotenv import load_dotenv
 from .auth import require_api_key
 from .sessions import set_session_id
 
+UI_FILE = Path(__file__).parent.parent / "frontend" / "index.html"
+
 load_dotenv()
 
 app = FastAPI(title="Tax & Accounting Agent API")
 client = anthropic.AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 AGENT_ID = os.environ["AGENT_ID"]
 ENVIRONMENT_ID = os.environ["ENVIRONMENT_ID"]
+
+
+@app.get("/")
+async def serve_ui():
+    return FileResponse(UI_FILE)
 
 
 class MessageRequest(BaseModel):
