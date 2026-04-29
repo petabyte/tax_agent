@@ -504,6 +504,11 @@
     return msg;
   }
 
+  function preprocessMarkdown(text) {
+    // GFM tables need a blank line before them; insert one if missing
+    return text.replace(/([^\n])\n(\|)/g, '$1\n\n$2');
+  }
+
   function renderBubble(bubble, role, text, streaming = false) {
     if (role === 'agent') {
       if (streaming) {
@@ -511,7 +516,7 @@
         bubble.textContent = text;
       } else {
         bubble.style.whiteSpace = '';
-        bubble.innerHTML = marked.parse(text);
+        bubble.innerHTML = marked.parse(preprocessMarkdown(text));
         upgradeCitations(bubble);
       }
     } else {
