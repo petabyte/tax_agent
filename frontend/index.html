@@ -574,8 +574,10 @@
     });
   }
 
-  // Convert [1], [2] text into styled superscripts
+  // Convert [1], [2] text into styled superscripts.
+  // Also handles the case where marked.js turned [1] into an <a> link.
   function upgradeCitations(container) {
+    // Pass 1: plain text nodes (skip <a>, <code>, <pre>)
     const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
     const hits = [];
     let node;
@@ -583,7 +585,7 @@
       let el = node.parentElement;
       let skip = false;
       while (el && el !== container) {
-        if (['A','CODE','PRE'].includes(el.tagName)) { skip = true; break; }
+        if (['A', 'CODE', 'PRE'].includes(el.tagName)) { skip = true; break; }
         el = el.parentElement;
       }
       if (!skip && /\[\d+\]/.test(node.textContent)) hits.push(node);
@@ -592,6 +594,17 @@
       const span = document.createElement('span');
       span.innerHTML = n.textContent.replace(/\[(\d+)\]/g, '<sup class="cite">$1</sup>');
       n.parentNode.replaceChild(span, n);
+    });
+
+    // Pass 2: <a> tags whose text is purely a number — marked.js sometimes
+    // renders an undefined [1] reference as <a>1</a>; convert those too.
+    container.querySelectorAll('a').forEach(a => {
+      if (/^\d+$/.test(a.textContent.trim())) {
+        const sup = document.createElement('sup');
+        sup.className = 'cite';
+        sup.textContent = a.textContent.trim();
+        a.parentNode.replaceChild(sup, a);
+      }
     });
   }
 
