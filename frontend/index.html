@@ -274,14 +274,17 @@
     .bubble blockquote p { margin: 0; }
 
     /* Tables (e.g. tax brackets) */
+    .bubble .tbl-wrap {
+      overflow-x: auto;
+      margin: 14px 0;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
     .bubble table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13.5px;
-      margin: 12px 0;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border);
     }
     .bubble th {
       background: #f1f5f9;
@@ -290,9 +293,10 @@
       text-align: left;
       border-bottom: 2px solid var(--border);
       color: var(--navy);
-      font-size: 12.5px;
+      font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
     }
     .bubble td { padding: 8px 14px; border-bottom: 1px solid #f1f5f9; }
     .bubble tr:last-child td { border-bottom: none; }
@@ -316,13 +320,13 @@
       cursor: default;
     }
 
-    /* Sources section — everything after the last <hr> */
-    .bubble hr ~ p,
-    .bubble hr ~ ol,
-    .bubble hr ~ ul { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
-    .bubble hr ~ ol { padding-left: 18px; }
-    .bubble hr ~ ol li { margin-bottom: 4px; }
-    .bubble hr ~ p strong {
+    /* Sources section — only siblings after the LAST <hr> */
+    .bubble hr:last-of-type ~ p,
+    .bubble hr:last-of-type ~ ol,
+    .bubble hr:last-of-type ~ ul { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+    .bubble hr:last-of-type ~ ol { padding-left: 18px; }
+    .bubble hr:last-of-type ~ ol li { margin-bottom: 4px; }
+    .bubble hr:last-of-type ~ p strong {
       display: block;
       font-size: 10px;
       font-weight: 700;
@@ -538,8 +542,9 @@
   }
 
   function preprocessMarkdown(text) {
-    // GFM tables need a blank line before them; insert one if missing
-    return text.replace(/([^\n])\n(\|)/g, '$1\n\n$2');
+    // GFM tables need a blank line before them; insert one if missing.
+    // Exclude | as preceding char so we don't break consecutive table rows.
+    return text.replace(/([^\n|])\n(\|)/g, '$1\n\n$2');
   }
 
   function renderBubble(bubble, role, text, streaming = false) {
@@ -550,11 +555,23 @@
       } else {
         bubble.style.whiteSpace = '';
         bubble.innerHTML = marked.parse(preprocessMarkdown(text));
+        wrapTables(bubble);
         upgradeCitations(bubble);
       }
     } else {
       bubble.textContent = text;
     }
+  }
+
+  // Wrap each <table> in a scrollable div so border-radius works and it scrolls on small screens
+  function wrapTables(container) {
+    container.querySelectorAll('table').forEach(table => {
+      if (table.parentElement.classList.contains('tbl-wrap')) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'tbl-wrap';
+      table.parentNode.insertBefore(wrap, table);
+      wrap.appendChild(table);
+    });
   }
 
   // Convert [1], [2] text into styled superscripts
