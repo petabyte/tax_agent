@@ -15,7 +15,7 @@ def update_env(key: str, value: str) -> None:
     if re.search(pattern, content, re.MULTILINE):
         content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
     else:
-        content += f"\n{replacement}"
+        content = content.rstrip("\n") + ("\n" if content else "") + f"{replacement}\n"
     env_path.write_text(content)
 
 
