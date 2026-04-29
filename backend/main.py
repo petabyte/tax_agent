@@ -49,23 +49,27 @@ async def send_message(
     _: str = Depends(require_api_key),
 ):
     async def generate():
-        async with client.beta.sessions.events.stream(session_id) as stream:
-            await client.beta.sessions.events.send(
-                session_id,
-                events=[
-                    {
-                        "type": "user.message",
-                        "content": [{"type": "text", "text": body.content}],
-                    }
-                ],
-            )
-            async for event in stream:
-                if event.type == "agent.message":
-                    for block in event.content:
-                        yield {"data": block.text}
-                elif event.type == "session.status_idle":
-                    yield {"data": "[DONE]"}
-                    break
+        stream = await client.beta.sessions.events.stream(session_id)
+        await client.beta.sessions.events.send(
+            session_id,
+            events=[
+                {
+                    "type": "user.message",
+                    "content": [{"type": "text", "text": body.content}],
+                }
+            ],
+        )
+        async for event in stream:
+            if event.type == "agent.message":
+                for block in event.content:
+                    yield {"data": block.text}
+            elif event.type == "session.error":
+                yield {"data": f"[ERROR] {event.error.message}"}
+                yield {"data": "[DONE]"}
+                break
+            elif event.type == "session.status_idle":
+                yield {"data": "[DONE]"}
+                break
 
     return EventSourceResponse(generate())
 
