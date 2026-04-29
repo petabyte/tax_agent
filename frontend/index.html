@@ -195,27 +195,42 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 0 0 1px var(--border);
     }
 
-    /* Markdown in agent bubbles */
-    .bubble p { margin: 0 0 10px; }
+    /* ── Markdown in agent bubbles ── */
+    .bubble p { margin: 0 0 12px; }
     .bubble p:last-child { margin-bottom: 0; }
+
     .bubble h1, .bubble h2, .bubble h3 {
-      font-size: 15px;
       font-weight: 700;
-      margin: 14px 0 6px;
-      color: var(--navy-mid);
+      color: var(--navy);
+      line-height: 1.3;
+      margin: 16px 0 8px;
     }
-    .bubble h1:first-child,
-    .bubble h2:first-child,
-    .bubble h3:first-child { margin-top: 0; }
-    .bubble ul, .bubble ol { padding-left: 20px; margin: 6px 0 10px; }
-    .bubble li { margin-bottom: 5px; line-height: 1.5; }
+    .bubble h2 { font-size: 15px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+    .bubble h3 { font-size: 14.5px; }
+    .bubble h1:first-child, .bubble h2:first-child, .bubble h3:first-child { margin-top: 0; }
+
+    .bubble ul, .bubble ol { padding-left: 22px; margin: 4px 0 12px; }
+    .bubble li { margin-bottom: 6px; line-height: 1.6; }
+    .bubble li:last-child { margin-bottom: 0; }
+    .bubble ul { list-style-type: disc; }
+    .bubble ol { list-style-type: decimal; }
+
     .bubble strong { font-weight: 700; }
     .bubble em { font-style: italic; }
+
+    .bubble a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(37,99,235,0.3);
+      transition: border-color 0.1s;
+    }
+    .bubble a:hover { border-bottom-color: var(--accent); }
+
     .bubble code {
       font-family: "SF Mono", "Fira Code", monospace;
-      font-size: 13px;
+      font-size: 12.5px;
       background: #f1f5f9;
-      padding: 1px 5px;
+      padding: 2px 5px;
       border-radius: 4px;
       color: #0f172a;
     }
@@ -223,31 +238,66 @@
       background: #f8fafc;
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 12px 14px;
+      padding: 14px 16px;
       overflow-x: auto;
-      margin: 8px 0;
+      margin: 10px 0;
     }
-    .bubble pre code { background: none; padding: 0; }
-    .bubble a { color: var(--accent); text-decoration: underline; }
-    .bubble hr {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 12px 0;
-    }
+    .bubble pre code { background: none; padding: 0; font-size: 13px; }
+
     .bubble blockquote {
       border-left: 3px solid var(--accent);
-      padding-left: 12px;
+      background: #f8fafc;
+      padding: 8px 14px;
+      margin: 10px 0;
+      border-radius: 0 6px 6px 0;
       color: var(--muted);
-      margin: 8px 0;
+    }
+    .bubble blockquote p { margin: 0; }
+
+    /* Tables (e.g. tax brackets) */
+    .bubble table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 10px 0; }
+    .bubble th {
+      background: #f1f5f9;
+      font-weight: 600;
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      color: var(--navy);
+    }
+    .bubble td { padding: 7px 12px; border: 1px solid var(--border); }
+    .bubble tr:nth-child(even) td { background: #fafbfc; }
+
+    /* Inline citation numbers [1] → superscript */
+    .bubble sup.cite {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      vertical-align: super;
+      line-height: 0;
+      margin-left: 1px;
+      cursor: default;
     }
 
-    /* citation rendered via markdown hr + em inside the bubble */
+    /* Sources section (everything after the <hr>) */
     .bubble hr {
       border: none;
       border-top: 1px solid var(--border);
-      margin: 12px 0 8px;
+      margin: 16px 0 12px;
     }
-    .bubble hr + p { color: var(--muted); font-size: 13px; }
+    .bubble hr ~ p,
+    .bubble hr ~ ol,
+    .bubble hr ~ ul { font-size: 13px; color: var(--muted); }
+    .bubble hr ~ ol { padding-left: 18px; }
+    .bubble hr ~ ol li { margin-bottom: 5px; }
+    .bubble hr ~ p strong {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
 
     /* ── Typing indicator ── */
     .typing-bubble {
@@ -396,6 +446,8 @@
 </div>
 
 <script>
+  marked.use({ gfm: true, breaks: false });
+
   const BACKEND_KEY = 'h1efVeMytfyrmzWvN-SuK-HKUhZ0swS7CsmXFd6P2-4';
 
   const chat      = document.getElementById('chat');
@@ -445,19 +497,47 @@
 
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    renderBubble(bubble, role, text || '');
+    renderBubble(bubble, role, text || '', role === 'agent' && !text);
     msg.appendChild(bubble);
     chat.appendChild(msg);
     chat.scrollTop = chat.scrollHeight;
     return msg;
   }
 
-  function renderBubble(bubble, role, text) {
+  function renderBubble(bubble, role, text, streaming = false) {
     if (role === 'agent') {
-      bubble.innerHTML = marked.parse(text);
+      if (streaming) {
+        bubble.style.whiteSpace = 'pre-wrap';
+        bubble.textContent = text;
+      } else {
+        bubble.style.whiteSpace = '';
+        bubble.innerHTML = marked.parse(text);
+        upgradeCitations(bubble);
+      }
     } else {
       bubble.textContent = text;
     }
+  }
+
+  // Convert [1], [2] text into styled superscripts
+  function upgradeCitations(container) {
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+    const hits = [];
+    let node;
+    while ((node = walker.nextNode())) {
+      let el = node.parentElement;
+      let skip = false;
+      while (el && el !== container) {
+        if (['A','CODE','PRE'].includes(el.tagName)) { skip = true; break; }
+        el = el.parentElement;
+      }
+      if (!skip && /\[\d+\]/.test(node.textContent)) hits.push(node);
+    }
+    hits.forEach(n => {
+      const span = document.createElement('span');
+      span.innerHTML = n.textContent.replace(/\[(\d+)\]/g, '<sup class="cite">$1</sup>');
+      n.parentNode.replaceChild(span, n);
+    });
   }
 
   function addTyping() {
@@ -514,6 +594,7 @@
 
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
+      let streamDone = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -526,7 +607,7 @@
         for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
           const data = line.slice(6).trimEnd();
-          if (data === '[DONE]') break;
+          if (data === '[DONE]') { streamDone = true; break; }
 
           if (!agentMsg) {
             typingEl.remove();
@@ -535,9 +616,17 @@
 
           fullText += data;
           const bubble = agentMsg.querySelector('.bubble');
-          renderBubble(bubble, 'agent', fullText);
+          renderBubble(bubble, 'agent', fullText, true);
           chat.scrollTop = chat.scrollHeight;
         }
+        if (streamDone) break;
+      }
+
+      // Final pass: render full markdown with citations
+      if (agentMsg) {
+        const bubble = agentMsg.querySelector('.bubble');
+        renderBubble(bubble, 'agent', fullText, false);
+        chat.scrollTop = chat.scrollHeight;
       }
 
 
