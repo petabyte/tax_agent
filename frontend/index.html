@@ -312,12 +312,14 @@
     /* Inline citation numbers [1] → superscript */
     .bubble sup.cite {
       font-size: 10px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--accent);
       vertical-align: super;
       line-height: 0;
-      margin-left: 1px;
+      margin-left: 2px;
+      margin-right: 1px;
       cursor: default;
+      letter-spacing: 0;
     }
 
     /* Sources section — only siblings after the LAST <hr> */
@@ -592,7 +594,7 @@
     }
     hits.forEach(n => {
       const span = document.createElement('span');
-      span.innerHTML = n.textContent.replace(/\[(\d+)\]/g, '<sup class="cite">$1</sup>');
+      span.innerHTML = n.textContent.replace(/\[(\d+)\]/g, '<sup class="cite">[$1]</sup>');
       n.parentNode.replaceChild(span, n);
     });
 
@@ -602,7 +604,7 @@
       if (/^\d+$/.test(a.textContent.trim())) {
         const sup = document.createElement('sup');
         sup.className = 'cite';
-        sup.textContent = a.textContent.trim();
+        sup.textContent = '[' + a.textContent.trim() + ']';
         a.parentNode.replaceChild(sup, a);
       }
     });
