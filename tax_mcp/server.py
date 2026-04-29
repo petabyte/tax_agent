@@ -53,7 +53,7 @@ async def _get_or_create_session() -> str:
 
 @mcp.tool()
 async def ask_tax_question(question: str) -> str:
-    """Ask a US federal tax or accounting question and get a cited answer."""
+    """Ask a US tax or accounting question (federal, state, local, municipal, or city) and get a cited answer."""
     session_id = await _get_or_create_session()
     answer_parts: list[str] = []
 

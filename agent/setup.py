@@ -37,7 +37,7 @@ def main() -> None:
     else:
         print("Creating agent...")
         agent = client.beta.agents.create(
-            name="Federal Tax & Accounting Agent",
+            name="Tax & Accounting Agent",
             model="claude-sonnet-4-6",
             system=system_prompt,
             tools=[{"type": "agent_toolset_20260401"}],
