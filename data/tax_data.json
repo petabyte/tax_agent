@@ -1,0 +1,80 @@
+{
+  "tax_year": 2025,
+  "brackets": {
+    "single": [
+      {"rate": 0.10, "min": 0, "max": 11925},
+      {"rate": 0.12, "min": 11926, "max": 48475},
+      {"rate": 0.22, "min": 48476, "max": 103350},
+      {"rate": 0.24, "min": 103351, "max": 197300},
+      {"rate": 0.32, "min": 197301, "max": 250525},
+      {"rate": 0.35, "min": 250526, "max": 626350},
+      {"rate": 0.37, "min": 626351, "max": null}
+    ],
+    "married_filing_jointly": [
+      {"rate": 0.10, "min": 0, "max": 23850},
+      {"rate": 0.12, "min": 23851, "max": 96950},
+      {"rate": 0.22, "min": 96951, "max": 206700},
+      {"rate": 0.24, "min": 206701, "max": 394600},
+      {"rate": 0.32, "min": 394601, "max": 501050},
+      {"rate": 0.35, "min": 501051, "max": 751600},
+      {"rate": 0.37, "min": 751601, "max": null}
+    ],
+    "married_filing_separately": [
+      {"rate": 0.10, "min": 0, "max": 11925},
+      {"rate": 0.12, "min": 11926, "max": 48475},
+      {"rate": 0.22, "min": 48476, "max": 103350},
+      {"rate": 0.24, "min": 103351, "max": 197300},
+      {"rate": 0.32, "min": 197301, "max": 250525},
+      {"rate": 0.35, "min": 250526, "max": 375800},
+      {"rate": 0.37, "min": 375801, "max": null}
+    ],
+    "head_of_household": [
+      {"rate": 0.10, "min": 0, "max": 17000},
+      {"rate": 0.12, "min": 17001, "max": 64850},
+      {"rate": 0.22, "min": 64851, "max": 103350},
+      {"rate": 0.24, "min": 103351, "max": 197300},
+      {"rate": 0.32, "min": 197301, "max": 250500},
+      {"rate": 0.35, "min": 250501, "max": 626350},
+      {"rate": 0.37, "min": 626351, "max": null}
+    ]
+  },
+  "standard_deductions": {
+    "single": 15000,
+    "married_filing_jointly": 30000,
+    "married_filing_separately": 15000,
+    "head_of_household": 22500,
+    "additional_65_or_blind_single": 1600,
+    "additional_65_or_blind_mfj_per_person": 1300
+  },
+  "contribution_limits": {
+    "401k_employee": 23500,
+    "401k_catchup_50_plus": 31000,
+    "ira": 7000,
+    "ira_catchup_50_plus": 8000,
+    "roth_ira_phaseout_single_start": 150000,
+    "roth_ira_phaseout_single_end": 165000,
+    "roth_ira_phaseout_mfj_start": 236000,
+    "roth_ira_phaseout_mfj_end": 246000,
+    "hsa_self_only": 4300,
+    "hsa_family": 8550,
+    "hsa_catchup_55_plus": 1000,
+    "sep_ira_max": 70000,
+    "simple_ira": 16500,
+    "simple_ira_catchup_50_plus": 20000,
+    "fsa_healthcare": 3300
+  },
+  "self_employment_tax": {
+    "rate_below_wage_base": 0.153,
+    "rate_above_wage_base": 0.029,
+    "ss_wage_base": 176100,
+    "deductible_portion": 0.50
+  },
+  "deadlines_2026": {
+    "q4_2025_estimated": "2026-01-15",
+    "w2_1099_must_be_sent": "2026-01-31",
+    "2025_return_and_q1_2026_estimated": "2026-04-15",
+    "q2_2026_estimated": "2026-06-16",
+    "q3_2026_estimated": "2026-09-15",
+    "2025_extended_return": "2026-10-15"
+  }
+}
