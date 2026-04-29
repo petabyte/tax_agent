@@ -3,203 +3,376 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Federal Tax Agent</title>
+  <title>Federal Tax Assistant</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --navy: #0f2a4a;
+      --navy-mid: #1a3a5c;
+      --navy-light: #234d75;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --bg: #f5f7fa;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --error: #dc2626;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
       height: 100vh;
       display: flex;
       flex-direction: column;
+      color: var(--text);
     }
 
+    /* ── Header ── */
     header {
-      background: #1a3a5c;
+      background: var(--navy);
       color: white;
-      padding: 16px 24px;
+      padding: 0 24px;
+      height: 60px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      gap: 14px;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
-    header h1 { font-size: 18px; font-weight: 600; }
-    header span { font-size: 13px; opacity: 0.7; margin-left: auto; }
-    .badge {
-      background: #2ecc71;
-      color: white;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 10px;
+    .header-logo {
+      width: 34px;
+      height: 34px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .header-title {
+      font-size: 16px;
       font-weight: 600;
+      letter-spacing: -0.01em;
     }
+    .header-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 1px;
+    }
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.85);
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #94a3b8;
+      transition: background 0.3s;
+    }
+    .status-dot.online { background: #22c55e; }
+    .status-dot.error  { background: var(--error); }
 
+    /* ── Chat area ── */
     #chat {
       flex: 1;
       overflow-y: auto;
-      padding: 24px 16px;
+      padding: 32px 20px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
+      scroll-behavior: smooth;
     }
 
+    /* ── Welcome screen ── */
+    .welcome {
+      align-self: center;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      margin: auto;
+      padding: 40px 20px;
+      max-width: 560px;
+    }
+    .welcome-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--navy);
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .welcome h2 {
+      color: var(--text);
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .welcome p { line-height: 1.6; }
+    .welcome .disclaimer {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 8px;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .chip {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 7px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--navy-mid);
+      font-weight: 500;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+      line-height: 1.3;
+    }
+    .chip:hover {
+      border-color: var(--accent);
+      background: #eff6ff;
+      box-shadow: 0 1px 4px rgba(37,99,235,0.12);
+    }
+
+    /* ── Messages ── */
     .msg {
       display: flex;
       flex-direction: column;
-      max-width: 75%;
+      max-width: 76%;
     }
-    .msg.user { align-self: flex-end; align-items: flex-end; }
+    .msg.user  { align-self: flex-end;  align-items: flex-end; }
     .msg.agent { align-self: flex-start; align-items: flex-start; }
 
+    .msg-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      padding: 0 4px;
+      font-weight: 500;
+    }
+
     .bubble {
-      padding: 12px 16px;
-      border-radius: 18px;
-      line-height: 1.55;
+      padding: 13px 17px;
+      border-radius: 16px;
+      line-height: 1.6;
       font-size: 14.5px;
-      white-space: pre-wrap;
       word-break: break-word;
     }
     .msg.user .bubble {
-      background: #1a3a5c;
+      background: var(--navy-mid);
       color: white;
       border-bottom-right-radius: 4px;
+      white-space: pre-wrap;
     }
     .msg.agent .bubble {
-      background: white;
-      color: #1a1a2e;
+      background: var(--surface);
+      color: var(--text);
       border-bottom-left-radius: 4px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 0 0 1px var(--border);
+    }
+
+    /* Markdown in agent bubbles */
+    .bubble p { margin: 0 0 10px; }
+    .bubble p:last-child { margin-bottom: 0; }
+    .bubble h1, .bubble h2, .bubble h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 14px 0 6px;
+      color: var(--navy-mid);
+    }
+    .bubble h1:first-child,
+    .bubble h2:first-child,
+    .bubble h3:first-child { margin-top: 0; }
+    .bubble ul, .bubble ol { padding-left: 20px; margin: 6px 0 10px; }
+    .bubble li { margin-bottom: 5px; line-height: 1.5; }
+    .bubble strong { font-weight: 700; }
+    .bubble em { font-style: italic; }
+    .bubble code {
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 13px;
+      background: #f1f5f9;
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    .bubble pre {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      margin: 8px 0;
+    }
+    .bubble pre code { background: none; padding: 0; }
+    .bubble a { color: var(--accent); text-decoration: underline; }
+    .bubble hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 12px 0;
+    }
+    .bubble blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+      color: var(--muted);
+      margin: 8px 0;
     }
 
     .citation {
       font-size: 12px;
-      color: #888;
-      margin-top: 6px;
-      font-style: italic;
+      color: var(--muted);
+      margin-top: 7px;
       padding: 0 4px;
-    }
-
-    .typing {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
+    }
+    .citation a { color: var(--accent); }
+
+    /* ── Typing indicator ── */
+    .typing-bubble {
+      display: flex;
+      align-items: center;
+      gap: 5px;
       padding: 14px 18px;
+      background: var(--surface);
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 0 0 1px var(--border);
+      width: fit-content;
     }
     .dot {
       width: 7px; height: 7px;
-      background: #aaa;
+      background: #cbd5e1;
       border-radius: 50%;
-      animation: bounce 1.2s infinite;
+      animation: bounce 1.3s infinite ease-in-out;
     }
-    .dot:nth-child(2) { animation-delay: 0.2s; }
-    .dot:nth-child(3) { animation-delay: 0.4s; }
+    .dot:nth-child(2) { animation-delay: 0.18s; }
+    .dot:nth-child(3) { animation-delay: 0.36s; }
     @keyframes bounce {
-      0%, 80%, 100% { transform: translateY(0); }
-      40% { transform: translateY(-6px); }
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
     }
 
+    /* ── Input area ── */
     #form-area {
-      background: white;
-      border-top: 1px solid #e0e0e0;
-      padding: 16px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 16px 20px 20px;
+      flex-shrink: 0;
     }
-
-    #api-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
+    #status {
       font-size: 12px;
-      color: #888;
+      color: var(--error);
+      min-height: 18px;
+      margin-bottom: 8px;
     }
-    #api-bar input {
-      flex: 1;
-      font-size: 12px;
-      padding: 4px 8px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-family: monospace;
-      color: #555;
-    }
-
     form {
       display: flex;
       gap: 10px;
+      align-items: flex-end;
+    }
+    .input-wrap {
+      flex: 1;
+      position: relative;
     }
     textarea {
-      flex: 1;
+      width: 100%;
       padding: 12px 16px;
-      border: 1.5px solid #ddd;
+      border: 1.5px solid var(--border);
       border-radius: 12px;
       font-size: 14.5px;
       font-family: inherit;
       resize: none;
       outline: none;
-      line-height: 1.4;
-      transition: border-color 0.15s;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      display: block;
     }
-    textarea:focus { border-color: #1a3a5c; }
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+      background: var(--surface);
+    }
+    textarea::placeholder { color: #94a3b8; }
 
-    button {
-      background: #1a3a5c;
+    button#send-btn {
+      background: var(--accent);
       color: white;
       border: none;
       border-radius: 12px;
-      padding: 0 22px;
-      font-size: 14px;
-      font-weight: 600;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      transition: background 0.15s;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.1s;
     }
-    button:hover:not(:disabled) { background: #24527a; }
-    button:disabled { background: #aaa; cursor: not-allowed; }
-
-    .welcome {
-      align-self: center;
-      text-align: center;
-      color: #888;
-      font-size: 14px;
-      margin: auto;
-      padding: 40px 16px;
-    }
-    .welcome h2 { color: #1a3a5c; font-size: 22px; margin-bottom: 10px; }
-    .welcome p { margin-bottom: 6px; }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
-    .chip {
-      background: white;
-      border: 1.5px solid #ccd;
-      border-radius: 20px;
-      padding: 7px 14px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      color: #1a3a5c;
-    }
-    .chip:hover { border-color: #1a3a5c; background: #f0f4f8; }
-
-    #status {
-      font-size: 12px;
-      color: #e74c3c;
-      margin-bottom: 6px;
-      min-height: 16px;
-    }
+    button#send-btn:hover:not(:disabled) { background: var(--accent-hover); }
+    button#send-btn:active:not(:disabled) { transform: scale(0.95); }
+    button#send-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
 <header>
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-  <h1>Federal Tax Agent</h1>
-  <span class="badge">US Federal Only</span>
-  <span id="session-status">connecting…</span>
+  <div class="header-logo">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+    </svg>
+  </div>
+  <div>
+    <div class="header-title">Federal Tax Assistant</div>
+    <div class="header-sub">US Federal Tax &amp; Accounting</div>
+  </div>
+  <div class="header-right">
+    <span class="badge">2025 Tax Year</span>
+    <div class="status-dot" id="status-dot"></div>
+  </div>
 </header>
 
 <div id="chat">
   <div class="welcome" id="welcome">
-    <h2>Ask a tax question</h2>
-    <p>US federal tax &amp; accounting, answered with IRS citations.</p>
-    <p style="color:#aaa;font-size:12px;">Not legal advice. Consult a CPA for your specific situation.</p>
+    <div class="welcome-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+    <h2>Ask a federal tax question</h2>
+    <p>Get accurate answers on US federal tax law, deductions, credits, and deadlines — grounded in IRS publications.</p>
+    <p class="disclaimer">For informational purposes only. Consult a CPA or tax attorney for advice specific to your situation.</p>
     <div class="chips">
       <div class="chip" onclick="prefill(this)">What's the standard deduction for 2025?</div>
       <div class="chip" onclick="prefill(this)">Can I deduct a home office?</div>
@@ -212,59 +385,54 @@
 </div>
 
 <div id="form-area">
-  <div id="api-bar">
-    <label for="api-key">API key:</label>
-    <input id="api-key" type="password" placeholder="changeme" />
-  </div>
   <div id="status"></div>
   <form id="form">
-    <textarea id="input" rows="2" placeholder="Ask a federal tax or accounting question…"></textarea>
-    <button id="send-btn" type="submit">Send</button>
+    <div class="input-wrap">
+      <textarea id="input" rows="1" placeholder="Ask a federal tax or accounting question…"></textarea>
+    </div>
+    <button id="send-btn" type="submit" aria-label="Send">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
   </form>
 </div>
 
 <script>
-  const chat = document.getElementById('chat');
-  const form = document.getElementById('form');
-  const input = document.getElementById('input');
-  const sendBtn = document.getElementById('send-btn');
-  const statusEl = document.getElementById('status');
-  const sessionStatusEl = document.getElementById('session-status');
-  const apiKeyInput = document.getElementById('api-key');
+  const BACKEND_KEY = 'h1efVeMytfyrmzWvN-SuK-HKUhZ0swS7CsmXFd6P2-4';
+
+  const chat      = document.getElementById('chat');
+  const form      = document.getElementById('form');
+  const input     = document.getElementById('input');
+  const sendBtn   = document.getElementById('send-btn');
+  const statusEl  = document.getElementById('status');
+  const dotEl     = document.getElementById('status-dot');
 
   let sessionId = null;
   let busy = false;
 
-  // Restore API key from localStorage
-  apiKeyInput.value = localStorage.getItem('tax_api_key') || 'changeme';
-  apiKeyInput.addEventListener('change', () => {
-    localStorage.setItem('tax_api_key', apiKeyInput.value);
-    sessionId = null;
-    sessionStatusEl.textContent = 'connecting…';
-    initSession();
-  });
-
-  function apiKey() { return apiKeyInput.value.trim() || 'changeme'; }
+  function setDot(state) {
+    dotEl.className = 'status-dot' + (state ? ' ' + state : '');
+  }
 
   async function initSession() {
     try {
       const uid = 'web-' + Math.random().toString(36).slice(2, 9);
       const r = await fetch('/session?user_id=' + uid, {
         method: 'POST',
-        headers: { 'x-api-key': apiKey() },
+        headers: { 'x-api-key': BACKEND_KEY },
       });
       if (!r.ok) {
-        sessionStatusEl.textContent = 'auth failed';
-        statusEl.textContent = 'Invalid API key — check the field above.';
+        setDot('error');
+        statusEl.textContent = 'Session error — please reload.';
         return;
       }
       const data = await r.json();
       sessionId = data.session_id;
-      sessionStatusEl.textContent = 'ready';
-      statusEl.textContent = '';
+      setDot('online');
     } catch (e) {
-      sessionStatusEl.textContent = 'offline';
-      statusEl.textContent = 'Cannot reach backend at ' + location.host;
+      setDot('error');
+      statusEl.textContent = 'Cannot reach server.';
     }
   }
 
@@ -273,9 +441,14 @@
     const msg = document.createElement('div');
     msg.className = 'msg ' + role;
 
+    const meta = document.createElement('div');
+    meta.className = 'msg-meta';
+    meta.textContent = role === 'user' ? 'You' : 'Tax Assistant';
+    msg.appendChild(meta);
+
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.textContent = text;
+    renderBubble(bubble, role, text || '');
     msg.appendChild(bubble);
 
     if (role === 'agent') {
@@ -289,19 +462,37 @@
     return msg;
   }
 
+  function renderBubble(bubble, role, text) {
+    if (role === 'agent') {
+      bubble.innerHTML = marked.parse(text);
+    } else {
+      bubble.textContent = text;
+    }
+  }
+
   function addTyping() {
     document.getElementById('welcome')?.remove();
-    const msg = document.createElement('div');
-    msg.className = 'msg agent';
-    msg.id = 'typing';
-    msg.innerHTML = '<div class="bubble typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
-    chat.appendChild(msg);
+    const wrap = document.createElement('div');
+    wrap.className = 'msg agent';
+    wrap.id = 'typing';
+
+    const meta = document.createElement('div');
+    meta.className = 'msg-meta';
+    meta.textContent = 'Tax Assistant';
+    wrap.appendChild(meta);
+
+    const tb = document.createElement('div');
+    tb.className = 'typing-bubble';
+    tb.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+    wrap.appendChild(tb);
+
+    chat.appendChild(wrap);
     chat.scrollTop = chat.scrollHeight;
-    return msg;
+    return wrap;
   }
 
   async function sendMessage(text) {
-    if (!sessionId) { statusEl.textContent = 'No session — check API key and reload.'; return; }
+    if (!sessionId) { statusEl.textContent = 'No session — please reload.'; return; }
     if (busy) return;
     busy = true;
     sendBtn.disabled = true;
@@ -319,7 +510,7 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey(),
+          'x-api-key': BACKEND_KEY,
           'Accept': 'text/event-stream',
         },
         body: JSON.stringify({ content: text }),
@@ -344,7 +535,7 @@
 
         for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6);
+          const data = line.slice(6).trimEnd();
           if (data === '[DONE]') break;
 
           if (!agentMsg) {
@@ -354,19 +545,18 @@
 
           fullText += data;
           const bubble = agentMsg.querySelector('.bubble');
-          bubble.textContent = fullText;
+          renderBubble(bubble, 'agent', fullText);
           chat.scrollTop = chat.scrollHeight;
         }
       }
 
-      // Extract and display citation separately
       if (agentMsg) {
         const bubble = agentMsg.querySelector('.bubble');
-        const cite = agentMsg.querySelector('.citation');
-        const sourceMatch = fullText.match(/Source:(.+)$/m);
-        if (sourceMatch) {
-          bubble.textContent = fullText.replace(/\n?Source:.+$/m, '').trimEnd();
-          cite.textContent = '📎 Source:' + sourceMatch[1].trim();
+        const cite   = agentMsg.querySelector('.citation');
+        const srcMatch = fullText.match(/Source:(.+)$/m);
+        if (srcMatch) {
+          renderBubble(bubble, 'agent', fullText.replace(/\n?Source:.+$/m, '').trimEnd());
+          cite.textContent = 'Source: ' + srcMatch[1].trim();
         }
       }
 
@@ -398,12 +588,14 @@
 
   input.addEventListener('input', () => {
     input.style.height = 'auto';
-    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    input.style.height = Math.min(input.scrollHeight, 140) + 'px';
   });
 
   function prefill(chip) {
     input.value = chip.textContent;
     input.focus();
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 140) + 'px';
   }
 
   initSession();
