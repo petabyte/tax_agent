@@ -78,6 +78,8 @@ async def ask_tax_question(question: str) -> str:
 if __name__ == "__main__":
     transport = os.environ.get("MCP_TRANSPORT", "stdio")
     if transport == "sse":
+        # Disable DNS rebinding protection — safe for a public server with its own auth
+        mcp.settings.transport_security.enable_dns_rebinding_protection = False
         port = int(os.environ.get("PORT", 8001))
         app = _AuthMiddleware(mcp.sse_app())
         uvicorn.run(app, host="0.0.0.0", port=port)

@@ -241,16 +241,13 @@
       margin: 8px 0;
     }
 
-    .citation {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 7px;
-      padding: 0 4px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    /* citation rendered via markdown hr + em inside the bubble */
+    .bubble hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 12px 0 8px;
     }
-    .citation a { color: var(--accent); }
+    .bubble hr + p { color: var(--muted); font-size: 13px; }
 
     /* ── Typing indicator ── */
     .typing-bubble {
@@ -450,13 +447,6 @@
     bubble.className = 'bubble';
     renderBubble(bubble, role, text || '');
     msg.appendChild(bubble);
-
-    if (role === 'agent') {
-      const cite = document.createElement('div');
-      cite.className = 'citation';
-      msg.appendChild(cite);
-    }
-
     chat.appendChild(msg);
     chat.scrollTop = chat.scrollHeight;
     return msg;
@@ -550,15 +540,6 @@
         }
       }
 
-      if (agentMsg) {
-        const bubble = agentMsg.querySelector('.bubble');
-        const cite   = agentMsg.querySelector('.citation');
-        const srcMatch = fullText.match(/Source:(.+)$/m);
-        if (srcMatch) {
-          renderBubble(bubble, 'agent', fullText.replace(/\n?Source:.+$/m, '').trimEnd());
-          cite.textContent = 'Source: ' + srcMatch[1].trim();
-        }
-      }
 
     } catch (e) {
       typingEl?.remove();
